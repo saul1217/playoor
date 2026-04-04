@@ -136,7 +136,7 @@ public class Utils implements ReproduccionListener {
         }
         if (!nuevaCola.isEmpty()) {
             stackPlaylists.push(nuevaCola);
-            System.out.println("✅ Playlist (Cola) de " + nuevaCola.size() + " canciones agregada al Stack.");
+            System.out.println("Playlist (Cola) de " + nuevaCola.size() + " canciones agregada al Stack.");
             System.out.println("El Stack tiene ahora " + stackPlaylists.size() + " playlists listas.");
         }
     }
@@ -148,7 +148,7 @@ public class Utils implements ReproduccionListener {
         }
         enModoPlaylists = true;
         colaActual = stackPlaylists.pop();
-        System.out.println("\n🚀 Iniciando Playlist del Stack... Quedan " + stackPlaylists.size() + " en espera.");
+        System.out.println(" Iniciando Playlist del Stack... Quedan " + stackPlaylists.size() + " en espera.");
         avanzarEnPilaDeColas();
     }
 
@@ -159,10 +159,10 @@ public class Utils implements ReproduccionListener {
         } else {
             if (!stackPlaylists.isEmpty()) {
                 colaActual = stackPlaylists.pop();
-                System.out.println("\n🔄 Playlist terminada. Arrancando la siguiente Playlist del Stack...");
+                System.out.println(" Playlist terminada. Arrancando la siguiente Playlist del Stack...");
                 avanzarEnPilaDeColas();
             } else {
-                System.out.println("\n🛑 Todas las playlists en el Stack han terminado.");
+                System.out.println(" Todas las playlists en el Stack han terminado.");
                 enModoPlaylists = false;
 
                 detenerReproduccion();
