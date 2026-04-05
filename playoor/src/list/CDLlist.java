@@ -6,15 +6,18 @@ import java.util.NoSuchElementException;
 
 public class CDLlist <T> {
 
+    //Sentinela mantiene la estructura circular fija, el inicio y el final
+    //cursor actua como la cabeza de la reproduccion para saber que cancion suena
     Nodo<T> sentinela,cursor;
     private long indice;
-    private boolean flag;
+    private boolean flag; //Bandera para la funcionalidad de repeat
     public CDLlist(){
         this.sentinela = new Nodo<>();
+        //Al inicio el anillo esta vacio, asi que el centinela apunta a si mismo
         this.sentinela.setRight(sentinela);
         this.sentinela.setLeft(sentinela);
         this.indice = 0;
-        this.cursor = sentinela;
+        this.cursor = sentinela; //El cursor empieza en el sentinela
         this.flag = false;
     }
 
@@ -37,7 +40,7 @@ public class CDLlist <T> {
     }
 
 
-
+    //Obtiene la ultima cancion de la lista
     public Nodo<T> getLastElement() {
         isEmpty();
        return sentinela.getLeft();
@@ -64,19 +67,21 @@ public class CDLlist <T> {
         if (nodo == null || nodo.getLeft() == sentinela) throw new NoSuchElementException("el elemento es el primero de la lista");
         return nodo.getLeft();
     }
-
+    //Busca una cancion en especifico dentro del catalogo
     public Nodo<T> getElement(T elemento){
         isEmpty();
         if(elemento == null)throw new NoSuchElementException("error elemento vacio");
         Nodo<T> aux = sentinela.getRight();
         return getElement(elemento,aux);
     }
+
     private Nodo<T> getElement(T elemento, Nodo<T> nodo){
         if(nodo == sentinela)throw new NoSuchElementException("elemento no encontrado");
         if(elemento.equals(nodo.getElemento())) return nodo;
         return getElement(elemento, nodo.getRight());
     }
 
+    //Busca una cancion basandose en su posicion
     public Nodo<T> getElementAt(long indice) {
         if(indice > this.indice -1 || indice < 0 ) throw new NoSuchElementException("error con el indice");
         Nodo<T> aux = sentinela.getRight();
@@ -121,10 +126,13 @@ public class CDLlist <T> {
 
     }
 
+    //Metodos de insercion
+
     public void addStart(T elemento) {
         if(elemento == null)return;
         Nodo<T> aux = new Nodo<>(elemento);
         nodoVacio(aux);
+        //Conectamos la nueva cancion justo despues del sentinela
         aux.setRight(sentinela.getRight());
         sentinela.getRight().setLeft(aux);
         sentinela.setRight(aux);
@@ -137,9 +145,10 @@ public class CDLlist <T> {
     public void addAfter(T elemento, T elemento2) {
         isEmpty();
         if(elemento == null)throw new NoSuchElementException("elemento vacio");
-        Nodo<T> objetivo = getElement(elemento);
-        Nodo<T> nuevo = new Nodo<>(elemento2);
+        Nodo<T> objetivo = getElement(elemento); //Cancion actual de referencia
+        Nodo<T> nuevo = new Nodo<>(elemento2);//Cancion nueva a insertar
         nodoVacio(nuevo);
+        //Conexiones cuadruples para meter la cancion en medio sin romper el ciclo
         nuevo.setRight(objetivo.getRight());
         nuevo.setLeft(objetivo);
         objetivo.getRight().setLeft(nuevo);
@@ -147,23 +156,26 @@ public class CDLlist <T> {
         this.indice++;
     }
 
+
     public void add(T elemento) {
         if(elemento == null){return;}
         Nodo<T>aux = new Nodo<>(elemento);
         add(aux);
     }
 
-
+    //Agrega una cancion al final del catalogo principal
     public void add(Nodo<T> nodo) {
         nodoVacio(nodo);
         Nodo<T> primero = sentinela.getLeft();
-        Nodo<T> ultimo = sentinela.getLeft();
+        Nodo<T> ultimo = sentinela.getLeft(); //Ubicamos la ultima pista actual
         if (indice == 0){
+            //Si no hay canciones, el nuevo nodo se conecta con el sentinela
             nodo.setRight(sentinela);
             nodo.setLeft(sentinela);
             sentinela.setRight(nodo);
             sentinela.setLeft(nodo);
         }else{
+            //Se engancha la nueva cancion antes del sentinela
             nodo.setRight(sentinela);
             sentinela.setLeft(nodo);
             nodo.setLeft(ultimo);
@@ -218,6 +230,8 @@ public class CDLlist <T> {
         this.indice++;
     }
 
+    //Metodos de eliminacion
+
     public void remove(T elemento) {
         if(elemento == null)throw new NoSuchElementException("elemento vacio");
         Nodo<T> aux = getElement(elemento);
@@ -227,6 +241,7 @@ public class CDLlist <T> {
     public void remove(Nodo<T> nodo) {
         isEmpty();
         if(nodo == null || nodo == sentinela)return;
+        //Para borrar la cancion, simplemente conectamos su pista anterior con la siguiente
         Nodo<T> derecha = nodo.getRight();
         Nodo<T> izquierda = nodo.getLeft();
         derecha.setLeft(izquierda);
@@ -291,17 +306,18 @@ public class CDLlist <T> {
         }
         return nodo.getElemento() + ", " + toString(nodo.getRight());
     }
+    // Función para el botón Repeat (Repetir Lista/Canción)
     public boolean repeat(){
-        flag = !flag;
+        flag = !flag;//Intercabia el estado de la bandera
         return flag;
     }
-
+    // Función SEEK AND PLAY: Mueve el cursor a una posición específica y retorna la canción
     public T apuntarACancion(int indiceX) {
         isEmpty();
         this.cursor = getElementAt(indiceX);
         return this.cursor.getElemento();
     }
-
+    // Función GET CURRENT: Retorna la canción en la que se encuentra el cursor actualmente
     public T getCancionActual() {
         if (cursor == sentinela || cursor == null) {
             return null;

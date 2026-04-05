@@ -6,9 +6,11 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+//Implementa Runnable para ejecutarse en un Hilo (Thread) separado,
+//evitando que la reproducción de audio congele el menú de la consola.
 public class Reproductor implements Runnable {
     private String archivo;
-    private Player player;
+    private Player player; //Instancia de la libreria JLayer para mp3
     private Thread hilo;
     private boolean reproduciendo;
     private boolean pausado;
@@ -24,10 +26,10 @@ public class Reproductor implements Runnable {
     }
 
     public void reproducir() {
-        hilo = new Thread(this);
-        hilo.start();
+        hilo = new Thread(this); //crea un nuevo hilo de ejecucion en segundo plano
+        hilo.start();//dispara el metodo run()
     }
-
+    //synchronized evita colisiones en la memoria cuando el usuario teclea comandos
     public synchronized void pausar() {
         if (reproduciendo && !pausado) {
             pausado = true;
@@ -37,19 +39,19 @@ public class Reproductor implements Runnable {
     public synchronized void reanudar() {
         if (reproduciendo && pausado) {
             pausado = false;
-            notify();
+            notify();//Despierta al hilo que estaba "dormido" por el wait()
         }
     }
 
     public void detener() {
-        interrumpidoManual = true; // El usuario lo detuvo, no terminó sola
+        interrumpidoManual = true; //El usuario lo detuvo, no terminó sola
         reproduciendo = false;
         pausado = false;
         if (player != null) {
-            player.close();
+            player.close(); //Libera los recursos de audio de la tarjeta madre
         }
     }
-
+    //Este es el motor principal que corre en segundo plano
     @Override
     public void run() {
         try {
@@ -63,7 +65,7 @@ public class Reproductor implements Runnable {
                 if (pausado) {
                     synchronized (this) {
                         while (pausado) {
-                            wait();
+                            wait();//pone el hilo a dormir sin gastar CPU hasta recibir el notify()
                         }
                     }
                 }
