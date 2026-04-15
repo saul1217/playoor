@@ -3,6 +3,9 @@ package utilis;
 import player.Reproductor;
 import player.ReproduccionListener;
 import list.CDLlist;
+import queue.DQueue;
+import stack.DStack;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -11,16 +14,16 @@ import java.util.Random;
 
 public class Utils implements ReproduccionListener {
 
-    private final String CARPETA_MUSICA = "playoor/musica";
+    private final String CARPETA_MUSICA = "musica";
     private Reproductor reproductor;
 
     //Catalogo principal (Lista circular)
     private CDLlist<File> catalogoCircular;
     //Historial/gestor de playlist (Pila que guarda colas)
-    private Stack<Queue<File>> stackPlaylists;
-    //Variables de estado del reproductor
+    private DStack<DQueue<File>> stackPlaylists;
     private boolean enModoPlaylists = false;//indica si estamos leyendo del stack o del catalogo
-    private Queue<File> colaActual = null; //la playlist que esta sonando en este momento
+    private DQueue<File> colaActual = null; //la playlist que esta sonando en este momento
+    //private Queue<File> colaActual = null; //la playlist que esta sonando en este momento         --------------------------fila editada
 
     private int indiceActualCatalogo = 0;
     private boolean modoRepeat = false;
@@ -29,7 +32,8 @@ public class Utils implements ReproduccionListener {
 
     public Utils() {
         catalogoCircular = new CDLlist<>();
-        stackPlaylists = new Stack<>();
+        stackPlaylists = new DStack<>();
+        //stackPlaylists = new Stack<>(); -------------------------linea cambiada
         cargarCatalogoCircular();
     }
     //Lee los archivos MP3 de la carpeta y los guarda en la lista circular
@@ -62,6 +66,7 @@ public class Utils implements ReproduccionListener {
         reproductor.reproducir();
     }
 
+    //pausa o reanuda
     public void pausarOReanudar() {
         if (reproductor != null) {
             if (reproductor.estaPausado()) {
@@ -135,10 +140,11 @@ public class Utils implements ReproduccionListener {
     //creacion de playlists
     //crea una cola a partir de los indicess que elige el usuario
     public void crearPlaylist(int[] indicesSeleccionados) {
-        Queue<File> nuevaCola = new LinkedList<>();
+        // linea cambiada Queue<File> nuevaCola = new LinkedList<>();            ---------------------------------------------------------------------
+        DQueue<File> nuevaCola = new DQueue<>(); // Usamos TU Cola
         for (int idx : indicesSeleccionados) {
             if (idx >= 0 && idx < catalogoCircular.length()) {
-                nuevaCola.add(catalogoCircular.getElementAt(idx).getElemento());
+                nuevaCola.enqueue(catalogoCircular.getElementAt(idx).getElemento());
             }
         }
         if (!nuevaCola.isEmpty()) {
@@ -161,7 +167,7 @@ public class Utils implements ReproduccionListener {
 
     private void avanzarEnPilaDeColas() {
         if (colaActual != null && !colaActual.isEmpty()) {
-            File cancion = colaActual.poll();
+            File cancion = colaActual.dequeue();
             iniciarReproductor(cancion);
         } else {
             if (!stackPlaylists.isEmpty()) {
